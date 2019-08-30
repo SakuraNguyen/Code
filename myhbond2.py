@@ -35,16 +35,6 @@ def hbond(w1, w2):
                 hb +=  1
     return hb
 
-def neighbors2shells(ind,group,num_cut=4,molecule=True):
-    first, second = np.array_split(ind,[4], axis=1)
-
-    shell_pairs = []
-    for i in range(0,len(ind)):
-        sh1 = id2res(first[i],group, molecule)
-        sh2 = id2res(second[i],group, molecule)
-        shell_pairs.append([sh1,sh2])
-    return shell_pairs 
-
 def id2res(ind, group, molecule=True):
     """
     array_like ind : array of id of residues
@@ -53,6 +43,18 @@ def id2res(ind, group, molecule=True):
     if molecule:
         mols = mols.residues.atoms
     return mols
+
+def neighbors2shells(ind,group,num_cut=4,molecule=True):
+    first, second = np.array_split(ind,[4], axis=1)
+
+    shell_pairs = []
+    for i in range(0,len(ind)):
+        sh1 = id2res(first[i],group, molecule)
+        sh2 = id2res(second[i],group, molecule)
+        shell_pairs.append([sh1,sh2])
+    return shell_pairs
+
+
 
 DEBUG = False
 
@@ -88,12 +90,14 @@ if __name__ == '__main__':
             for elem_sh1 in sh1.residues:
                 for elem_sh2 in sh2.residues:
                     num_hb += hbond(elem_sh1,elem_sh2)
-                    if DEBUG:
-                        print (elem_sh1,elem_sh2,hbond(elem_sh1,elem_sh2))
-                    c1 =+ 1
-        all_c1 += c1
-        all_num_hb += num_hb
-
-        print(float(num_hb)/c1)
-
-    print('OVERALL AVERAGE HBONDS AROUND LITHIUMS IN THE SYSTEM:', float(all_num_hb)/all_c1)
+        ave_one_frame = num_hb/187
+        print(ave_one_frame)
+#                    if DEBUG:
+#                        print (elem_sh1,elem_sh2,hbond(elem_sh1,elem_sh2))
+    #                 c1 =+ 1
+    #     all_c1 += c1
+    #     all_num_hb += num_hb
+    #
+    #     print(float(num_hb)/c1)
+    #
+    # print('OVERALL AVERAGE HBONDS AROUND LITHIUMS IN THE SYSTEM:', float(all_num_hb)/all_c1)

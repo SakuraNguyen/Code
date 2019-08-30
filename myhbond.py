@@ -36,6 +36,16 @@ def hbond(w1, w2):
                 hb +=  1
     return hb
 
+def id2res(ind, group, molecule=True):
+    """
+    array_like ind : array of id of residues
+    """
+    #import pdb; pdb.set_trace()
+    mols = group[ind]
+    if molecule:
+        mols = mols.residues.atoms
+    return mols
+
 def pair_combination(*arrays):
     """
     This function is to generate pairs which are not duplicate from two arrays
@@ -48,45 +58,39 @@ def pair_combination(*arrays):
 if __name__ == '__main__':
     u = mda.Universe(sys.argv[1], sys.argv[2])
     for ts in u.trajectory[:1]:
+
         box = u.dimensions[:3]
+
         u.atoms.positions = u.atoms.pack_into_box()
         Li_pos = u.select_atoms('name LI').positions
-        O_atom = u.select_atoms('name OW')
-        O_pos = O_atom.positions
+        O_atoms= u.select_atoms('name OW')
+        O_pos = O_atoms.positions
+
         kdtree = cKDTree(O_pos, boxsize=box)
+
         _, ind = kdtree.query(Li_pos, 16)
-    #### Split each 16-element arry into two subarrays corresponding to the first
+    #### Split each 16-element array into two subarrays corresponding to the first
     #### and the second shell
         first, second = np.array_split(ind,[4], axis=1)
-        print(len(second))
-        first_res = []
+        first = first.flatten()
+        second = second.flatten()
+        shell1 = id2res(first,O_atoms)
+        shell2 = id2res(second,O_atoms)
+        #import pdb; pdb.set_trace()
 
-        for i in range(0, len(first)): # loop over the number of Li atoms
-    
-            if i == 2:
-                break
-            id_o_first = first[i]
-            closest_w_first = O_atom.residues[id_o_first]
-            first_res.append(closest_w_first)
-    #    print(first_res)
-        second_res = []
-        for j in range(0, len(second)): # loop over the number of Li atoms
-            if j == 2:
-                break
-            id_o_second = second[j]
-            closest_w_second = O_atom.residues[id_o_second]
-            second_res.append(closest_w_second)
-            pairs = []
-        for n, p in enumerate(zip(first_res, second_res)):
-            if n == 2:
-                break
-            pairs.append([x for x in pair_combination(p[0],p[1])])
-        print(len(pairs[1]))
-        for k, pa in enumerate(pairs):
-            if k == 2:
-                break
-            for h, pai in enumerate(pa):
-                # if h == :
-                #     break
-                hbs1 = hbond(pai[0], pai[1])
-                print(hbs1)
+
+
+
+#       pairs = []
+#       for n, p in enumerate(zip(first_res, second_res)):
+#           if n == 2:
+#               break
+#           pairs.append([x for x in pair_combination(p[0],p[1])])
+#       for k, pa in enumerate(pairs):
+#           if k == 2:
+#               break
+#           for h, pai in enumerate(pa):
+#               # if h == :
+#               #     break
+#               hbs1 = hbond(pai[0], pai[1])
+#               print(hbs1)
