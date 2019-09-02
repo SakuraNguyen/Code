@@ -57,15 +57,15 @@ ave_hbs = 0
 with open("hbs_first_shell.txt", "w") as f:
     for ts in u.trajectory[:]:
 
-        print("Calculating frame:  {:8d}".format(ts.frame))
+        print("Calculating frame with:  {:8d}".format(ts.frame))
         box = u.dimensions[:3]
         u.atoms.positions = u.atoms.pack_into_box()
-        Na_pos = u.select_atoms('name NA').positions
+        K_pos = u.select_atoms('name K').positions
         O_atom = u.select_atoms('name OW')
         O_pos = O_atom.positions
 
         kdtree = cKDTree(O_pos, boxsize=box)
-        _, ind = kdtree.query(Na_pos, 6)
+        _, ind = kdtree.query(K_pos, 7)
 
         hbs_one_frame = 0
 
@@ -74,13 +74,13 @@ with open("hbs_first_shell.txt", "w") as f:
             id_o = ind[i]
             closest_w = O_atom.residues[id_o]
             pairs = list(itertools.combinations(closest_w, 2))
-            hbs_one_Na = np.zeros(len(pairs))
+            hbs_one_K = np.zeros(len(pairs))
 
             for j, w in enumerate(pairs):
 
                 hbs_one_frame += hbond(w[0], w[1])
         #print(hbs_one_frame/187)
-        ave_one_frame = hbs_one_frame/(187*4)
+        ave_one_frame = hbs_one_frame/187
         ave_hbs += ave_one_frame
     print(ave_hbs/(len(u.trajectory)))
 #         ave_hbs += hbs_one_frame
